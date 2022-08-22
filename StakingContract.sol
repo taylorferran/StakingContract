@@ -8,9 +8,13 @@ contract StakingContract {
     // Use addressStakeDetails struct when doing deposit
     // Consider using arrays for multiple deposits per user per staking instance
 
-    address payable contractAddress = payable(address(this));
+    address payable owner;
     mapping (string => stakeInstance) public stakeList;
     mapping (string => mapping (address => uint)) public stakedAmountPerAddress;
+
+    constructor() {
+        owner = payable(msg.sender);
+    }
 
     struct stakeInstance
     {
@@ -47,7 +51,7 @@ contract StakingContract {
                 currentTokensStaked : 0,
                 timeCreated : block.timestamp
             });
-        (bool sent, ) = contractAddress.call{value: msg.value}("");
+        (bool sent, ) = owner.call{value: msg.value}("");
         require(sent, "Failed to send Ether");        
         return ("Staking contract created.");
     }
@@ -61,7 +65,7 @@ contract StakingContract {
         require(msg.value == _stakeAmount, "Not enough ETH supplied");
         stakedAmountPerAddress[_stakeName][msg.sender] += _stakeAmount;
         stakeList[_stakeName].currentTokensStaked += _stakeAmount;
-        (bool sent, ) = contractAddress.call{value: msg.value}("");
+        (bool sent, ) = owner.call{value: msg.value}("");
         require(sent, "Failed to send Ether");
     }
 
